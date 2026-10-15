@@ -59,8 +59,7 @@
 </template>
 
 <script>
-const API_URL = process.env.VUE_APP_API_URL || 'http://localhost:8000';
-
+const API_URL = process.env.VUE_APP_API_URL || 'http://SantaMartaSegura.onrender.com';
 export default {
     name: 'LugaresView',
     data() {
