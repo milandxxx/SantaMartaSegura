@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
-from models import Lugar, Alerta, Emergencia
+from models import Lugar, Emergencia
 from schemas import AdminLogin, AdminToken, StandardResponse
 from auth import verify_password, get_admin_password_hash, create_token, get_current_admin
 
@@ -18,7 +18,6 @@ def admin_login(login: AdminLogin):
 def admin_stats(admin: str = Depends(get_current_admin), db: Session = Depends(get_db)):
     stats = {
         "lugares_count": db.query(Lugar).count(),
-        "alertas_count": db.query(Alerta).count(),
         "emergencias_count": db.query(Emergencia).count(),
     }
     return {"status": True, "respuesta": stats}

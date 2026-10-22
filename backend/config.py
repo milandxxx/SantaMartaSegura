@@ -1,14 +1,13 @@
-import os
 from functools import lru_cache
 from typing import List
 
 class Settings:
     # Base de datos
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./santamarta.db")
+    DATABASE_URL: str = "sqlite:///./santamarta.db"
     
     # Admin
-    ADMIN_PASSWORD: str = os.getenv("ADMIN_PASSWORD", "admin123")
-    ADMIN_TOKEN_SECRET: str = os.getenv("ADMIN_TOKEN_SECRET", "super-secret-key-change-in-production")
+    ADMIN_PASSWORD: str = "admin123"
+    ADMIN_TOKEN_SECRET: str = "super-secret-key-change-in-production"
     ADMIN_TOKEN_EXPIRE_HOURS: int = 24
     
     # CORS

@@ -12,14 +12,6 @@ class Lugar(Base):
     seguridad = Column(String(20), default="verde")
     detalle = Column(Text, default="")
 
-class Alerta(Base):
-    __tablename__ = "alertas"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    tipo = Column(String(50))
-    titulo = Column(String(200), nullable=False)
-    mensaje = Column(Text, nullable=False)
-
 class Emergencia(Base):
     __tablename__ = "emergencias"
     

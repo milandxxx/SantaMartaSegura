@@ -1,7 +1,13 @@
 <template>
     <header class="cabecera">
         <div class="container-logo" @click="$router.push('/')">
-            <img v-if="logoOk" class="logo-img" src="../assets/logo-santa-marta.png" alt="Mapa Turístico Santa Marta" @error="logoOk = false">
+            <img 
+                v-if="logoOk" 
+                class="logo-img" 
+                src="../assets/logo.png" 
+                alt="Mapa Turístico Santa Marta" 
+                @error="logoOk = false"
+            >
             <span v-else class="logo-emoji">🌴</span>
             <span class="logo-text">SANTA MARTA SEGURO</span>
         </div>
@@ -56,10 +62,12 @@ export default {
 .logo-img{
     height: 52px;
     width: 52px;
-    object-fit: cover;
+    object-fit: contain;
     border-radius: 50%;
     background-color: #FFF;
     border: 2px solid #d9a441;
+    image-rendering: auto;
+    padding: 4px;
 }
 
 .logo-text{
