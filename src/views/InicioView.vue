@@ -63,20 +63,6 @@
             </div>
         </section>
 
-        <section class="alertas">
-            <h2>⚠️ Avisos turísticos</h2>
-            <article v-show="loadingAlertas == true" class="alerta-list">
-                <SkeletonPrime height="4rem"></SkeletonPrime>
-                <SkeletonPrime height="4rem"></SkeletonPrime>
-            </article>
-            <article v-show="loadingAlertas == false" class="alerta-list">
-                <div v-for="a in alertas" :key="a.id" class="alerta-card">
-                    <strong>{{ a.titulo }}</strong>
-                    <p>{{ a.mensaje }}</p>
-                </div>
-            </article>
-        </section>
-
         <section class="recomendado">
             <h2>🌴 Recomendado para ti</h2>
             <article v-show="loadingLugares == true" class="content-card">
@@ -111,9 +97,7 @@ export default {
             transitionDuration: 500, // ms
             busqueda: "",
             destacados: [],
-            loadingLugares: false,
-            alertas: [],
-            loadingAlertas: false
+            loadingLugares: false
         };
     },
     computed: {
@@ -214,26 +198,10 @@ export default {
                     this.loadingLugares = false;
                 });
         },
-        getAllAlertas: function () {
-            this.loadingAlertas = true;
-            this.axios
-                .get('http://localhost:8000/api/alertas')
-                .then(response => {
-                    this.alertas = response.data.respuesta;
-                    console.log(this.alertas);
-                })
-                .catch(() => {
-                    this.alertas = [];
-                })
-                .finally(() => {
-                    this.loadingAlertas = false;
-                });
-        }
     },
     mounted() {
         this.startAutoplay();
         this.getDestacados();
-        this.getAllAlertas();
     },
     beforeUnmount() {
         this.clearAutoplay();
@@ -405,30 +373,6 @@ export default {
 .recomendado h2 {
     text-align: center;
     margin-bottom: 1rem;
-}
-
-.alertas {
-    width: 95%;
-    max-width: 700px;
-    margin: 1rem auto;
-}
-
-.alertas h2 {
-    text-align: center;
-    margin-bottom: 1rem;
-}
-
-.alerta-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
-.alerta-card {
-    background-color: #fef3c7;
-    color: #92400e;
-    border-radius: 0.75rem;
-    padding: 0.75rem 1rem;
 }
 
 .content-card {
