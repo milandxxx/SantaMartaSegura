@@ -2,8 +2,10 @@ from functools import lru_cache
 from typing import List
 
 class Settings:
-    # Base de datos
-    DATABASE_URL: str = "sqlite:///./santamarta.db"
+    # Base de datos PostgreSQL
+    # Formato: postgresql://usuario:contraseña@host:puerto/nombre_bd
+    # Para desarrollo local con PostgreSQL:
+    DATABASE_URL: str = "postgresql://postgres:password@localhost:5432/santamarta"
     
     # Admin
     ADMIN_PASSWORD: str = "admin123"

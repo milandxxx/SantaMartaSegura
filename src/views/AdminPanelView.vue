@@ -313,7 +313,7 @@ export default {
       }
       // Verificar token con el backend
       this.axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      this.axios.get('http://localhost:8000/api/admin/verify')
+      this.axios.get('https://santamartasegura-backend.onrender.com/api/admin/verify')
         .catch(() => {
           localStorage.removeItem('admin_token');
           this.$router.push('/admin/login');
@@ -331,7 +331,7 @@ export default {
     async loadLugares() {
       this.loadingLugares = true;
       try {
-        const response = await this.axios.get('http://localhost:8000/api/lugares');
+        const response = await this.axios.get('https://santamartasegura-backend.onrender.com/api/lugares');
         this.lugares = response.data.respuesta || [];
       } catch (e) {
         console.error('Error cargando lugares:', e);
@@ -354,9 +354,9 @@ export default {
       this.savingLugar = true;
       try {
         if (this.lugarEditing) {
-          await this.axios.put(`http://localhost:8000/api/lugares/${this.lugarForm.id}`, this.lugarForm);
+          await this.axios.put(`https://santamartasegura-backend.onrender.com/api/lugares/${this.lugarForm.id}`, this.lugarForm);
         } else {
-          await this.axios.post('http://localhost:8000/api/lugares', this.lugarForm);
+          await this.axios.post('https://santamartasegura-backend.onrender.com/api/lugares', this.lugarForm);
         }
         this.lugarDialogVisible = false;
         await this.loadLugares();
@@ -380,7 +380,7 @@ export default {
     async loadEmergencias() {
       this.loadingEmergencias = true;
       try {
-        const response = await this.axios.get('http://localhost:8000/api/emergencias');
+        const response = await this.axios.get('https://santamartasegura-backend.onrender.com/api/emergencias');
         this.emergencias = response.data.respuesta || [];
       } catch (e) {
         console.error('Error cargando emergencias:', e);
@@ -403,9 +403,9 @@ export default {
       this.savingEmergencia = true;
       try {
         if (this.emergenciaEditing) {
-          await this.axios.put(`http://localhost:8000/api/emergencias/${this.emergenciaForm.id}`, this.emergenciaForm);
+          await this.axios.put(`https://santamartasegura-backend.onrender.com/api/emergencias/${this.emergenciaForm.id}`, this.emergenciaForm);
         } else {
-          await this.axios.post('http://localhost:8000/api/emergencias', this.emergenciaForm);
+          await this.axios.post('https://santamartasegura-backend.onrender.com/api/emergencias', this.emergenciaForm);
         }
         this.emergenciaDialogVisible = false;
         await this.loadEmergencias();
@@ -428,10 +428,10 @@ export default {
     async executeConfirmedAction() {
       try {
         if (this.confirmAction === 'deleteLugar') {
-          await this.axios.delete(`http://localhost:8000/api/lugares/${this.confirmData.id}`);
+          await this.axios.delete(`https://santamartasegura-backend.onrender.com/api/lugares/${this.confirmData.id}`);
           await this.loadLugares();
         } else if (this.confirmAction === 'deleteEmergencia') {
-          await this.axios.delete(`http://localhost:8000/api/emergencias/${this.confirmData.id}`);
+          await this.axios.delete(`https://santamartasegura-backend.onrender.com/api/emergencias/${this.confirmData.id}`);
           await this.loadEmergencias();
         }
       } catch (e) {

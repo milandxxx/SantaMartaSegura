@@ -203,7 +203,7 @@ export default {
         getDestacados: function () {
             this.loadingLugares = true;
             this.axios
-                .get('http://localhost:8000/api/lugares')
+                .get('https://santamartasegura-backend.onrender.com/api/lugares')
                 .then(response => {
                     this.destacados = response.data.respuesta.slice(0, 3);
                     console.log(this.destacados);
@@ -228,7 +228,7 @@ export default {
             }
             this.loadingBusqueda = true;
             this.axios
-                .get('http://localhost:8000/api/lugares')
+                .get('https://santamartasegura-backend.onrender.com/api/lugares')
                 .then(response => {
                     const todos = response.data.respuesta || [];
                     // Filtrar por nombre, categoría o detalle (case insensitive)
