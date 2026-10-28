@@ -27,20 +27,6 @@ class LugarResponse(LugarBase):
     
     model_config = ConfigDict(from_attributes=True)
 
-# Alertas
-class AlertaBase(BaseModel):
-    tipo: str
-    titulo: str
-    mensaje: str
-
-class AlertaCreate(AlertaBase):
-    pass
-
-class AlertaResponse(AlertaBase):
-    id: int
-    
-    model_config = ConfigDict(from_attributes=True)
-
 # Emergencias
 class EmergenciaBase(BaseModel):
     nombre: str

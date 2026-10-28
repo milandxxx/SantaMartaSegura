@@ -17,8 +17,8 @@
                 <h1>🌴 SANTA MARTA SEGURO</h1>
                 <p>Voy a Santa Marta 4 días, tengo $800.000 COP, viajo con mi pareja y quiero playa, naturaleza y gastronomía.</p>
                 <div class="buscador">
-                    <InputText v-model="busqueda" placeholder="🔎 Buscar un lugar..." />
-                    <ButtonPrime label="Explorar" @click="irLugares"></ButtonPrime>
+                    <InputText v-model="busqueda" placeholder="🔎 Buscar un lugar..." @keyup.enter="buscarLugares" />
+                    <ButtonPrime label="Buscar" @click="buscarLugares"></ButtonPrime>
                 </div>
             </div>
             
@@ -31,6 +31,24 @@
             <button type="button" class="carousel-control next" @click="nextSlide" aria-label="Imagen siguiente">
                 &#10095;
             </button>
+        </section>
+
+        <!-- RESULTADOS DE BÚSQUEDA -->
+        <section v-if="busqueda.trim()" class="resultados-busqueda">
+            <h2>🔍 Resultados para "{{ busqueda }}"</h2>
+            <article v-show="loadingBusqueda" class="content-card">
+                <SkeletonPrime height="14rem"></SkeletonPrime>
+                <SkeletonPrime height="14rem"></SkeletonPrime>
+                <SkeletonPrime height="14rem"></SkeletonPrime>
+            </article>
+            <article v-show="!loadingBusqueda && resultadosBusqueda.length === 0" class="sin-resultados">
+                <p>😕 No se encontraron lugares que coincidan con "<strong>{{ busqueda }}</strong>"</p>
+                <ButtonPrime label="Ver todos los lugares" @click="irLugares" />
+            </article>
+            <article v-show="!loadingBusqueda && resultadosBusqueda.length > 0" class="content-card">
+                <CardComponent v-for="lugar in resultadosBusqueda" :key="lugar.id" :imagen="lugar.imagen"
+                    :nombre="lugar.nombre" :parrafo="lugar.detalle"></CardComponent>
+            </article>
         </section>
 
         <section class="accesos">
@@ -97,7 +115,10 @@ export default {
             transitionDuration: 500, // ms
             busqueda: "",
             destacados: [],
-            loadingLugares: false
+            loadingLugares: false,
+            // Búsqueda
+            resultadosBusqueda: [],
+            loadingBusqueda: false
         };
     },
     computed: {
@@ -182,7 +203,7 @@ export default {
         getDestacados: function () {
             this.loadingLugares = true;
             this.axios
-                .get('http://localhost:8000/api/lugares')
+                .get('https://santamartasegura-backend.onrender.com/api/lugares')
                 .then(response => {
                     this.destacados = response.data.respuesta.slice(0, 3);
                     console.log(this.destacados);
@@ -198,6 +219,36 @@ export default {
                     this.loadingLugares = false;
                 });
         },
+        // BÚSQUEDA EN BASE DE DATOS
+        buscarLugares: function () {
+            const termino = this.busqueda.trim();
+            if (!termino) {
+                this.resultadosBusqueda = [];
+                return;
+            }
+            this.loadingBusqueda = true;
+            this.axios
+                .get('https://santamartasegura-backend.onrender.com/api/lugares')
+                .then(response => {
+                    const todos = response.data.respuesta || [];
+                    // Filtrar por nombre, categoría o detalle (case insensitive)
+                    this.resultadosBusqueda = todos.filter(lugar => 
+                        lugar.nombre.toLowerCase().includes(termino.toLowerCase()) ||
+                        lugar.categoria.toLowerCase().includes(termino.toLowerCase()) ||
+                        (lugar.detalle && lugar.detalle.toLowerCase().includes(termino.toLowerCase()))
+                    );
+                })
+                .catch(() => {
+                    this.resultadosBusqueda = [];
+                })
+                .finally(() => {
+                    this.loadingBusqueda = false;
+                });
+        },
+        limpiarBusqueda: function () {
+            this.busqueda = "";
+            this.resultadosBusqueda = [];
+        }
     },
     mounted() {
         this.startAutoplay();
@@ -373,6 +424,45 @@ export default {
 .recomendado h2 {
     text-align: center;
     margin-bottom: 1rem;
+}
+
+/* RESULTADOS DE BÚSQUEDA */
+.resultados-busqueda {
+    width: 95%;
+    max-width: 900px;
+    margin: 1.5rem auto;
+    padding: 1.5rem;
+    background: #ffffff;
+    border-radius: 1rem;
+    box-shadow: 0 4px 16px rgba(15, 118, 110, 0.1);
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.resultados-busqueda h2 {
+    color: #134e4a;
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+    text-align: center;
+}
+
+.sin-resultados {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: #6b7280;
+}
+
+.sin-resultados p {
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+}
+
+.sin-resultados strong {
+    color: #134e4a;
 }
 
 .content-card {

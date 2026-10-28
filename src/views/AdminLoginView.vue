@@ -51,7 +51,7 @@ export default {
       this.loading = true;
       
       try {
-        const response = await this.axios.post('http://localhost:8000/api/admin/login', {
+        const response = await this.axios.post('https://santamartasegura-backend.onrender.com/api/admin/login', {
           password: this.password
         });
         

@@ -97,49 +97,6 @@
         </DataTablePrime>
       </div>
 
-      <!-- ALERTAS TAB -->
-      <div v-if="activeTab === 'alertas'" class="tab-panel" role="tabpanel">
-        <div class="panel-header">
-          <h2>Gestión de Alertas</h2>
-          <ButtonPrime 
-            label="Nueva alerta" 
-            icon="pi pi-plus" 
-            @click="openAlertaDialog(null)"
-          />
-        </div>
-
-        <DataTablePrime 
-          :value="alertas" 
-          :loading="loadingAlertas"
-          :paginator="true"
-          :rows="10"
-          :rowsPerPageOptions="[10, 25, 50]"
-          responsiveLayout="scroll"
-        >
-          <ColumnPrime field="tipo" header="Tipo" :sortable="true">
-            <template #body="slotProps">
-              <TagPrime :value="slotProps.data.tipo" severity="info" />
-            </template>
-          </ColumnPrime>
-          <ColumnPrime field="titulo" header="Título" :sortable="true" />
-          <ColumnPrime field="mensaje" header="Mensaje" style="max-width: 400px">
-            <template #body="slotProps">
-              <span class="text-truncate" style="display: block; max-width: 400px;">{{ slotProps.data.mensaje }}</span>
-            </template>
-          </ColumnPrime>
-          <ColumnPrime header="Acciones" style="width: 100px">
-            <template #body="slotProps">
-              <ButtonPrime 
-                icon="pi pi-trash" 
-                severity="danger" 
-                size="small" 
-                @click="confirmDeleteAlerta(slotProps.data)"
-              />
-            </template>
-          </ColumnPrime>
-        </DataTablePrime>
-      </div>
-
       <!-- EMERGENCIAS TAB -->
       <div v-if="activeTab === 'emergencias'" class="tab-panel" role="tabpanel">
         <div class="panel-header">
@@ -212,12 +169,14 @@
         </div>
         <div class="field">
           <LabelPrime for="lugar-precio">Precio (COP)</LabelPrime>
-          <InputNumber 
+          <InputText 
             id="lugar-precio" 
-            v-model="lugarForm.precio" 
+            type="number" 
+            v-model.number="lugarForm.precio" 
             :min="0" 
             :step="1000"
             placeholder="0"
+            class="p-inputtext"
           />
         </div>
         <div class="field">
@@ -233,7 +192,7 @@
         </div>
         <div class="field">
           <LabelPrime for="lugar-detalle">Detalle</LabelPrime>
-          <Textarea 
+          <TextareaPrime 
             id="lugar-detalle" 
             v-model="lugarForm.detalle" 
             rows="4" 
@@ -246,50 +205,6 @@
             :label="lugarEditing ? 'Actualizar' : 'Crear'" 
             type="submit" 
             :loading="savingLugar"
-          />
-        </div>
-      </form>
-    </DialogPrime>
-
-    <!-- ALERTA DIALOG -->
-    <DialogPrime 
-      v-model:visible="alertaDialogVisible" 
-      :header="alertaEditing ? 'Editar alerta' : 'Nueva alerta'" 
-      :modal="true" 
-      :style="{ width: '500px' }"
-    >
-      <form @submit.prevent="saveAlerta" class="dialog-form">
-        <div class="field">
-          <LabelPrime for="alerta-tipo">Tipo</LabelPrime>
-          <SelectPrime 
-            id="alerta-tipo" 
-            v-model="alertaForm.tipo" 
-            :options="alertaTipos" 
-            optionLabel="label" 
-            optionValue="value" 
-            placeholder="Seleccionar"
-          />
-        </div>
-        <div class="field">
-          <LabelPrime for="alerta-titulo">Título *</LabelPrime>
-          <InputText id="alerta-titulo" v-model="alertaForm.titulo" required />
-        </div>
-        <div class="field">
-          <LabelPrime for="alerta-mensaje">Mensaje *</LabelPrime>
-          <Textarea 
-            id="alerta-mensaje" 
-            v-model="alertaForm.mensaje" 
-            rows="4" 
-            required
-            placeholder="Descripción de la alerta..."
-          />
-        </div>
-        <div class="dialog-footer">
-          <ButtonPrime label="Cancelar" variant="outlined" @click="alertaDialogVisible = false" />
-          <ButtonPrime 
-            :label="alertaEditing ? 'Actualizar' : 'Crear'" 
-            type="submit" 
-            :loading="savingAlerta"
           />
         </div>
       </form>
@@ -324,11 +239,16 @@
 
     <!-- CONFIRM DIALOG -->
     <ConfirmDialogPrime 
-      v-model:visible="confirmDialogVisible"
+      v-if="confirmDialogVisible"
       :message="confirmMessage"
       :header="confirmHeader"
-      :icon="confirmIcon"
+      :icon="confirmIcon || 'pi pi-exclamation-triangle'"
+      acceptLabel="Sí, eliminar"
+      rejectLabel="Cancelar"
+      acceptClass="p-button-danger"
+      rejectClass="p-button-text"
       @accept="executeConfirmedAction"
+      @reject="confirmDialogVisible = false"
     />
   </div>
 </template>
@@ -341,7 +261,6 @@ export default {
       activeTab: 'lugares',
       tabs: [
         { id: 'lugares', label: 'Lugares', icon: '📍' },
-        { id: 'alertas', label: 'Alertas', icon: '⚠️' },
         { id: 'emergencias', label: 'Emergencias', icon: '🚨' }
       ],
       
@@ -362,20 +281,6 @@ export default {
         { label: '🟢 Verde (Seguro)', value: 'verde' },
         { label: '🟡 Amarillo (Precaución)', value: 'amarillo' },
         { label: '🔴 Rojo (Alto riesgo)', value: 'rojo' }
-      ],
-      
-      // Alertas
-      alertas: [],
-      loadingAlertas: false,
-      alertaDialogVisible: false,
-      alertaEditing: false,
-      savingAlerta: false,
-      alertaForm: { tipo: 'clima', titulo: '', mensaje: '' },
-      alertaTipos: [
-        { label: 'Clima', value: 'clima' },
-        { label: 'Movilidad', value: 'movilidad' },
-        { label: 'Seguridad', value: 'seguridad' },
-        { label: 'General', value: 'general' }
       ],
       
       // Emergencias
@@ -408,7 +313,7 @@ export default {
       }
       // Verificar token con el backend
       this.axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      this.axios.get('http://localhost:8000/api/admin/verify')
+      this.axios.get('https://santamartasegura-backend.onrender.com/api/admin/verify')
         .catch(() => {
           localStorage.removeItem('admin_token');
           this.$router.push('/admin/login');
@@ -418,7 +323,6 @@ export default {
     async loadAll() {
       await Promise.all([
         this.loadLugares(),
-        this.loadAlertas(),
         this.loadEmergencias()
       ]);
     },
@@ -427,7 +331,7 @@ export default {
     async loadLugares() {
       this.loadingLugares = true;
       try {
-        const response = await this.axios.get('http://localhost:8000/api/lugares');
+        const response = await this.axios.get('https://santamartasegura-backend.onrender.com/api/lugares');
         this.lugares = response.data.respuesta || [];
       } catch (e) {
         console.error('Error cargando lugares:', e);
@@ -450,9 +354,9 @@ export default {
       this.savingLugar = true;
       try {
         if (this.lugarEditing) {
-          await this.axios.put(`http://localhost:8000/api/lugares/${this.lugarForm.id}`, this.lugarForm);
+          await this.axios.put(`https://santamartasegura-backend.onrender.com/api/lugares/${this.lugarForm.id}`, this.lugarForm);
         } else {
-          await this.axios.post('http://localhost:8000/api/lugares', this.lugarForm);
+          await this.axios.post('https://santamartasegura-backend.onrender.com/api/lugares', this.lugarForm);
         }
         this.lugarDialogVisible = false;
         await this.loadLugares();
@@ -472,60 +376,11 @@ export default {
       this.confirmDialogVisible = true;
     },
     
-    // ALERTAS
-    async loadAlertas() {
-      this.loadingAlertas = true;
-      try {
-        const response = await this.axios.get('http://localhost:8000/api/alertas');
-        this.alertas = response.data.respuesta || [];
-      } catch (e) {
-        console.error('Error cargando alertas:', e);
-      } finally {
-        this.loadingAlertas = false;
-      }
-    },
-    
-    openAlertaDialog(alerta) {
-      this.alertaEditing = !!alerta;
-      if (alerta) {
-        this.alertaForm = { ...alerta };
-      } else {
-        this.alertaForm = { tipo: 'clima', titulo: '', mensaje: '' };
-      }
-      this.alertaDialogVisible = true;
-    },
-    
-    async saveAlerta() {
-      this.savingAlerta = true;
-      try {
-        if (this.alertaEditing) {
-          await this.axios.put(`http://localhost:8000/api/alertas/${this.alertaForm.id}`, this.alertaForm);
-        } else {
-          await this.axios.post('http://localhost:8000/api/alertas', this.alertaForm);
-        }
-        this.alertaDialogVisible = false;
-        await this.loadAlertas();
-      } catch (e) {
-        alert(e.response?.data?.detail || 'Error al guardar');
-      } finally {
-        this.savingAlerta = false;
-      }
-    },
-    
-    confirmDeleteAlerta(alerta) {
-      this.confirmHeader = 'Eliminar alerta';
-      this.confirmMessage = `¿Eliminar la alerta "${alerta.titulo}"?`;
-      this.confirmIcon = 'pi pi-trash';
-      this.confirmAction = 'deleteAlerta';
-      this.confirmData = alerta;
-      this.confirmDialogVisible = true;
-    },
-    
     // EMERGENCIAS
     async loadEmergencias() {
       this.loadingEmergencias = true;
       try {
-        const response = await this.axios.get('http://localhost:8000/api/emergencias');
+        const response = await this.axios.get('https://santamartasegura-backend.onrender.com/api/emergencias');
         this.emergencias = response.data.respuesta || [];
       } catch (e) {
         console.error('Error cargando emergencias:', e);
@@ -548,9 +403,9 @@ export default {
       this.savingEmergencia = true;
       try {
         if (this.emergenciaEditing) {
-          await this.axios.put(`http://localhost:8000/api/emergencias/${this.emergenciaForm.id}`, this.emergenciaForm);
+          await this.axios.put(`https://santamartasegura-backend.onrender.com/api/emergencias/${this.emergenciaForm.id}`, this.emergenciaForm);
         } else {
-          await this.axios.post('http://localhost:8000/api/emergencias', this.emergenciaForm);
+          await this.axios.post('https://santamartasegura-backend.onrender.com/api/emergencias', this.emergenciaForm);
         }
         this.emergenciaDialogVisible = false;
         await this.loadEmergencias();
@@ -573,13 +428,10 @@ export default {
     async executeConfirmedAction() {
       try {
         if (this.confirmAction === 'deleteLugar') {
-          await this.axios.delete(`http://localhost:8000/api/lugares/${this.confirmData.id}`);
+          await this.axios.delete(`https://santamartasegura-backend.onrender.com/api/lugares/${this.confirmData.id}`);
           await this.loadLugares();
-        } else if (this.confirmAction === 'deleteAlerta') {
-          await this.axios.delete(`http://localhost:8000/api/alertas/${this.confirmData.id}`);
-          await this.loadAlertas();
         } else if (this.confirmAction === 'deleteEmergencia') {
-          await this.axios.delete(`http://localhost:8000/api/emergencias/${this.confirmData.id}`);
+          await this.axios.delete(`https://santamartasegura-backend.onrender.com/api/emergencias/${this.confirmData.id}`);
           await this.loadEmergencias();
         }
       } catch (e) {

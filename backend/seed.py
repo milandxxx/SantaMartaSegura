@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from database import engine, Base, SessionLocal
-from models import Lugar, Alerta, Emergencia
+from models import Lugar, Emergencia
 from auth import get_admin_password_hash
 
 def seed_database():
@@ -67,15 +67,6 @@ def seed_database():
         
         for lugar in lugares:
             db.add(lugar)
-        
-        # Alertas iniciales
-        alertas = [
-            Alerta(tipo="clima", titulo="Lluvias en la tarde", mensaje="Se esperan lluvias. Considera actividades bajo techo."),
-            Alerta(tipo="movilidad", titulo="Vía a Minca", mensaje="Verifica condiciones de acceso antes de desplazarte."),
-        ]
-        
-        for alerta in alertas:
-            db.add(alerta)
         
         # Emergencias iniciales
         emergencias = [

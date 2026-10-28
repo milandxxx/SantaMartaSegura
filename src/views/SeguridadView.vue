@@ -35,7 +35,7 @@
 </template>
 
 <script>
-const API_URL = 'http://localhost:8000';
+const API_URL = 'https://santamartasegura-backend.onrender.com';
 
 export default {
     name: 'SeguridadView',
